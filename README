@@ -1,0 +1,7 @@
+=================================
+ dm-multi-hooks
+=================================
+
+By Andrew Buntine
+
+A plugin for DataMapper that allows you to add single/multiple hooks to single/multiple methods in a convenient way.
