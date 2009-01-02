@@ -1,7 +1,28 @@
 =================================
- dm-multi-hooks
+ dm-multi-hooks 0.0.1
 =================================
 
 By Andrew Buntine
 
 A plugin for DataMapper that allows you to add single/multiple hooks to single/multiple methods in a convenient way.
+
+For example:
+
+  before [ :create, :destroy ], [ :do_something, :and_another_thing ]
+
+is equivelant to:
+
+  before :create, :do_something
+  before :create, :and_another_thing
+  before :destroy, :do_something
+  before :destroy, :and_another_thing
+  
+...And:
+
+  after :create, [ :set_name, :set_encoding, :increment_cache ]
+
+is_equivelant to:
+
+  after :create, :set_name
+  after :create, :set_encoding
+  after :create, :increment_cache

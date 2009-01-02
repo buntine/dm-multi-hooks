@@ -62,11 +62,11 @@ class Four
  private
 
   def set_name
-    self.name = "Bob Benson"
+    self.name = "Bret Hart"
   end
 
   def set_monicker
-    self.name.sub! /\s/, " 'The Sandwich' "
+    self.name.sub! /\s/, " 'The Hitman' "
   end
 end
 
