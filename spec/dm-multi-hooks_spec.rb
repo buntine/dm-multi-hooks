@@ -30,13 +30,45 @@ class Two
   end
 end
 
+class Three
+  include DataMapper::Resource
+  before :create, [ :set_name, :set_monicker ]; after :create, [ :set_name, :set_monicker ]
+  property :id, Serial; property :name, String
+
+ private
+
+  def set_name
+    self.name = "Bob Benson"
+  end
+
+  def set_monicker
+    self.name.sub! /\s/, " 'The Sandwich' "
+  end
+end
+
+class Four
+  include DataMapper::Resource
+  before [ :create, :destroy ], [ :set_name, :set_monicker ]; after [ :create, :destroy ], [ :set_name, :set_monicker ]
+  property :id, Serial; property :name, String
+
+ private
+
+  def set_name
+    self.name = "Bob Benson"
+  end
+
+  def set_monicker
+    self.name.sub! /\s/, " 'The Sandwich' "
+  end
+end
+
 describe "dm-multi-hooks" do
 
   before(:all) do
     @hooks_one = One.instance_hooks
     @hooks_two = Two.instance_hooks
-#    @hooks_three = Three.instance_hooks
-#    @hooks_four = Four.instance_hooks
+    @hooks_three = Three.instance_hooks
+    @hooks_four = Four.instance_hooks
   end
 
   it "should allow one hook to be assigned to one method" do
@@ -61,7 +93,27 @@ describe "dm-multi-hooks" do
     end
   end
 
-  it "should allow multiple hooks to be assigned to one method"
-  it "should allow multiple hooks to be assigned to multiple methods"
+  it "should allow multiple hooks to be assigned to one method" do
+    @hooks_three[:create][:before].should == [ { :from => Three, :name => :set_name }, { :from => Three, :name => :set_monicker } ]
+    @hooks_three[:create][:after].should == [ { :from => Three, :name => :set_name }, { :from => Three, :name => :set_monicker } ]
+
+    [ :update, :save, :destroy ].each do |method|
+      @hooks_three[method][:before].should be_empty
+      @hooks_three[method][:after].should be_empty
+    end
+  end
+
+  it "should allow multiple hooks to be assigned to multiple methods" do
+    @hooks_four[:create][:before].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+    @hooks_four[:create][:after].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+    @hooks_four[:destroy][:before].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+    @hooks_four[:destroy][:after].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+
+    [ :update, :save ].each do |method|
+      @hooks_four[method][:before].should be_empty
+      @hooks_four[method][:after].should be_empty
+    end
+
+  end
 
 end
