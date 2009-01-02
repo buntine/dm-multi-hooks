@@ -1,6 +1,9 @@
 require 'spec'
 require File.dirname(__FILE__) + '/../lib/dm-multi-hooks'
 
+require "rubygems"
+require "dm-core"
+
 DataMapper.setup(:default, 'sqlite3::memory:')
 
 class Cheese
