@@ -8,7 +8,9 @@ DataMapper.setup(:default, 'sqlite3::memory:')
 
 class One
   include DataMapper::Resource
-  before :create, :set_name; after :create, :set_name
+  before :create, :set_name
+  after :create, :set_name
+
   property :id, Serial; property :name, String
 
  private
@@ -20,7 +22,9 @@ end
 
 class Two
   include DataMapper::Resource
-  before [ :create, :update ], :set_name; after [ :create, :update ], :set_name
+  before [ :create, :update ], :set_name
+  after [ :create, :update ], :set_name
+
   property :id, Serial; property :name, String
 
  private
@@ -32,7 +36,9 @@ end
 
 class Three
   include DataMapper::Resource
-  before :create, [ :set_name, :set_monicker ]; after :create, [ :set_name, :set_monicker ]
+  before :create, [ :set_name, :set_monicker ]
+  after :create, [ :set_name, :set_monicker ]
+
   property :id, Serial; property :name, String
 
  private
@@ -48,7 +54,9 @@ end
 
 class Four
   include DataMapper::Resource
-  before [ :create, :destroy ], [ :set_name, :set_monicker ]; after [ :create, :destroy ], [ :set_name, :set_monicker ]
+  before [ :create, :destroy ], [ :set_name, :set_monicker ]
+  after [ :create, :destroy ], [ :set_name, :set_monicker ]
+
   property :id, Serial; property :name, String
 
  private
@@ -72,8 +80,10 @@ describe "dm-multi-hooks" do
   end
 
   it "should allow one hook to be assigned to one method" do
-    @hooks_one[:create][:before].should == [ { :from => One, :name => :set_name } ]
-    @hooks_one[:create][:after].should == [ { :from => One, :name => :set_name } ]
+    hooks = [ { :from => One, :name => :set_name } ]
+
+    @hooks_one[:create][:before].should == hooks
+    @hooks_one[:create][:after].should == hooks
 
     [ :update, :save, :destroy ].each do |method|
       @hooks_one[method][:before].should be_empty
@@ -82,10 +92,12 @@ describe "dm-multi-hooks" do
   end
 
   it "should allow one hook to be assigned to multiple methods" do
-    @hooks_two[:create][:before].should == [ { :from => Two, :name => :set_name } ]
-    @hooks_two[:create][:after].should == [ { :from => Two, :name => :set_name } ]
-    @hooks_two[:update][:before].should == [ { :from => Two, :name => :set_name } ]
-    @hooks_two[:update][:after].should == [ { :from => Two, :name => :set_name } ]
+    hooks = [ { :from => Two, :name => :set_name } ]
+
+    @hooks_two[:create][:before].should == hooks
+    @hooks_two[:create][:after].should == hooks
+    @hooks_two[:update][:before].should == hooks
+    @hooks_two[:update][:after].should == hooks
 
     [ :save, :destroy ].each do |method|
       @hooks_two[method][:before].should be_empty
@@ -94,8 +106,10 @@ describe "dm-multi-hooks" do
   end
 
   it "should allow multiple hooks to be assigned to one method" do
-    @hooks_three[:create][:before].should == [ { :from => Three, :name => :set_name }, { :from => Three, :name => :set_monicker } ]
-    @hooks_three[:create][:after].should == [ { :from => Three, :name => :set_name }, { :from => Three, :name => :set_monicker } ]
+    hooks = [ { :from => Three, :name => :set_name }, { :from => Three, :name => :set_monicker } ]
+
+    @hooks_three[:create][:before].should == hooks
+    @hooks_three[:create][:after].should == hooks
 
     [ :update, :save, :destroy ].each do |method|
       @hooks_three[method][:before].should be_empty
@@ -104,10 +118,12 @@ describe "dm-multi-hooks" do
   end
 
   it "should allow multiple hooks to be assigned to multiple methods" do
-    @hooks_four[:create][:before].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
-    @hooks_four[:create][:after].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
-    @hooks_four[:destroy][:before].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
-    @hooks_four[:destroy][:after].should == [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+    hooks = [ { :from => Four, :name => :set_name }, { :from => Four, :name => :set_monicker } ]
+
+    @hooks_four[:create][:before].should == hooks
+    @hooks_four[:create][:after].should == hooks
+    @hooks_four[:destroy][:before].should == hooks
+    @hooks_four[:destroy][:after].should == hooks
 
     [ :update, :save ].each do |method|
       @hooks_four[method][:before].should be_empty
